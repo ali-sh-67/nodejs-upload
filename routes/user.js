@@ -4,11 +4,10 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const { application } = require('express');
 const User = require('./../models/user');
+const UserController=require('./../controllers/userController');
 
-router.get('/', async (req, res) => {
-    let users = await User.find();
-    res.render('users', { users, errors: req.flash('aaa') });
-})
+
+router.get('/', UserController.getAllUsers.bind(UserController));
 // router.get('/', (req, res) => {
 //     res.render('users', { users, errors: req.flash('aaa') });
 // })
@@ -18,11 +17,7 @@ router.get('/', async (req, res) => {
 //         success: true
 //     });
 // })
-router.get('/:id', async (req, res) => {
-    let user = await User.findById(req.params.id)
-
-    res.render('user', { user });
-})
+router.get('/:id', UserController.getOneUser.bind(UserController))
 // router.get('/:id', (req, res) => {
 //     let user = users.find((user) => {
 //         if (user.id == req.params.id) return user;
@@ -43,20 +38,7 @@ router.post('/',
     [
         check('email', 'email invalid').isEmail(),
         check('password', 'password min 5 must be').isLength({ min: 5 })
-    ], async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            req.flash('aaa', errors.array());
-            return res.redirect('/user');
-        }
-        users = new User({
-            first_name: req.body.first_name,
-            email: req.body.email,
-            password: req.body.password
-        });
-        await users.save();
-        return res.redirect('/user');
-    })
+    ], UserController.createUser.bind(UserController) )
 // router.post('/',
 //     [
 //         check('email', 'email invalid').isEmail(),
@@ -86,10 +68,7 @@ router.post('/',
 //             message: 'user create successfuly'
 //         });
 //     })
-router.put('/:id', async (req, res) => {
-    await User.findByIdAndUpdate(req.params.id, req.body);
-    return res.redirect('/user');
-})
+router.put('/:id', UserController.updateUser.bind(UserController))
 // router.put('/:id', (req, res) => {
 //     users = users.map((user) => {
 //         if (user.id == req.params.id) {
@@ -111,11 +90,7 @@ router.put('/:id', async (req, res) => {
 //         success: true
 //     })
 // })
-router.delete('/:id', async (req, res) => {
-   await User.findByIdAndDelete(req.params.id);
-    return res.redirect('/user');
-
-})
+router.delete('/:id', UserController.deleteUser.bind(UserController))
 // router.delete('/:id', (req, res) => {
 //     users = users.filter((user) => {
 //         if (user.id != req.params.id) return user;
